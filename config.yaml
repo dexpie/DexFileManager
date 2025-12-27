@@ -1,0 +1,100 @@
+# DexFileManager Configuration
+
+# Strategy: 'extension' or 'date'
+# - extension: Organizes by file type (e.g., /Images, /Documents)
+# - date: Organizes by modification date (e.g., /2025-01, /2025-02)
+default_strategy: extension
+
+# Format for date-based organization (used if strategy is 'date')
+# %Y-%m -> 2025-12
+# %Y/%m -> 2025/12
+date_format: "%Y-%m"
+
+# Files to ignore (names or patterns)
+ignore:
+  - .DS_Store
+  - desktop.ini
+  - thumbs.db
+  # Project files (prevents self-organization)
+  - main.py
+  - organizer.py
+  - utils.py
+  - config.yaml
+  - requirements.txt
+  - README.md
+  - .gitignore
+  - .git
+
+# Extension Mappings
+# Maps folder names to lists of extensions (without the dot)
+mappings:
+  Images:
+    - jpg
+    - jpeg
+    - png
+    - gif
+    - bmp
+    - tiff
+    - svg
+    - webp
+    - heic
+  
+  Videos:
+    - mp4
+    - mkv
+    - avi
+    - mov
+    - wmv
+    - flv
+    - webm
+  
+  Music:
+    - mp3
+    - wav
+    - flac
+    - aac
+    - ogg
+    - m4a
+  
+  Documents:
+    - pdf
+    - doc
+    - docx
+    - txt
+    - rtf
+    - odt
+    - xls
+    - xlsx
+    - csv
+    - ppt
+    - pptx
+  
+  Archives:
+    - zip
+    - rar
+    - 7z
+    - tar
+    - gz
+    - iso
+  
+  Executables:
+    - exe
+    - msi
+    - bat
+    - sh
+    - app
+  
+  Code:
+    - py
+    - js
+    - html
+    - css
+    - java
+    - cpp
+    - c
+    - h
+    - json
+    - xml
+    - yaml
+    - yml
+    - md
