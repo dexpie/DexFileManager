@@ -37,6 +37,7 @@ def main():
     parser.add_argument("--source", type=str, default=".", help="Source directory to organize (default: current dir)")
     parser.add_argument("--strategy", type=str, choices=["extension", "date"], help="Organization strategy (overrides config)")
     parser.add_argument("--dry-run", action="store_true", help="Simulate changes without moving files")
+    parser.add_argument("--undo", action="store_true", help="Undo the last batch of operations")
     parser.add_argument("--watch", action="store_true", help="Run continuously and watch for changes (every 10 seconds)")
     
     args = parser.parse_args()
@@ -51,6 +52,11 @@ def main():
     try:
         organizer = FileOrganizer(source_path, dry_run=args.dry_run, strategy=args.strategy)
         
+        if args.undo:
+            console.print("[bold yellow]⏳ Time Traveller Logic Activated...[/bold yellow]")
+            organizer.undo()
+            sys.exit(0)
+
         if args.watch:
             with Live(layout, refresh_per_second=4) as live:
                 while True:

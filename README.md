@@ -11,6 +11,8 @@ Stop wasting time organizing your downloads manually. DexFileManager categorizes
 ## 🚀 Features
 - **Auto-Organize**: Sorts by Extension (default) or Date.
 - **God Mode Dashboard**: 🖥️ Live terminal UI with real-time stats (via `rich`).
+- **Time Traveller (Undo)**: ⏳ Oops? Reverses the last batch of moves instantly.
+- **Black Hole**: 🕳️ Auto-deletes empty folders to keep it clean.
 - **Duplicate Assassin**: 🔪 Smartly compares file hashes. Identical? **Deleted**. Different? Renamed.
 - **The Butler**: 🔔 Sends desktop notifications when files are organized.
 - **Dry-Run**: Preview what will happen safely.
@@ -58,6 +60,10 @@ python main.py --source "C:/Users/You/Downloads" --watch
 Sorts into folders like `2025-12`, `2025-01`:
 ```bash
 python main.py --strategy date
+### 6. Undo (Time Traveller)
+Made a mistake? Revert the last batch of moves:
+```bash
+python main.py --undo
 ```
 
 ## ⚙️ Configuration

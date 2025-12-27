@@ -74,9 +74,12 @@ def safe_move(source_path: Path, dest_folder: Path, dry_run: bool = False):
 
     if dry_run:
         logger.info(f"[DRY-RUN] Move: '{source_path.name}' -> '{dest_path}'")
+        return dest_path
     else:
         try:
             shutil.move(str(source_path), str(dest_path))
             logger.info(f"Moved: '{source_path.name}' -> '{dest_path}'")
+            return dest_path
         except Exception as e:
             logger.error(f"Failed to move '{source_path.name}': {e}")
+            return None
