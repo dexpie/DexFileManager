@@ -10,6 +10,18 @@ default_strategy: extension
 # %Y/%m -> 2025/12
 date_format: "%Y-%m"
 
+# Smart Rules (Mind Reader) 🧠
+# Processed BEFORE extension/date strategy.
+# - keyword: Simple text match (case-insensitive)
+# - pattern: Regex pattern
+rules:
+  - name: "Screenshots"
+    keyword: "screenshot"
+  - name: "Finance"
+    keyword: "invoice"
+  - name: "Important"
+    pattern: "^IMPORTANT_.*"
+
 # Files to ignore (names or patterns)
 ignore:
   - .DS_Store

@@ -1,1 +1,28 @@
-[]
+[
+    {
+        "timestamp": "2025-12-27T17:13:08.835419",
+        "moves": [
+            {
+                "src": "C:\\Users\\Gading\\Documents\\github\\DexFileManager\\test_zone\\invoice_jan.pdf",
+                "dest": "C:\\Users\\Gading\\Documents\\github\\DexFileManager\\test_zone\\Finance\\invoice_jan.pdf"
+            },
+            {
+                "src": "C:\\Users\\Gading\\Documents\\github\\DexFileManager\\test_zone\\undo_test.txt",
+                "dest": "C:\\Users\\Gading\\Documents\\github\\DexFileManager\\test_zone\\Documents\\undo_test.txt"
+            },
+            {
+                "src": "C:\\Users\\Gading\\Documents\\github\\DexFileManager\\test_zone\\2025-12\\old_file.txt",
+                "dest": "C:\\Users\\Gading\\Documents\\github\\DexFileManager\\test_zone\\Documents\\old_file.txt"
+            }
+        ]
+    },
+    {
+        "timestamp": "2025-12-27T17:18:35.649532",
+        "moves": [
+            {
+                "src": "C:\\Users\\Gading\\Documents\\github\\DexFileManager\\test_zone\\nested\\img.png",
+                "dest": "C:\\Users\\Gading\\Documents\\github\\DexFileManager\\test_zone\\Images\\img.png"
+            }
+        ]
+    }
+]

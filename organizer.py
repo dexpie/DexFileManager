@@ -1,6 +1,7 @@
 import os
 import yaml
 import json
+import re
 from pathlib import Path
 from datetime import datetime
 from utils import logger, safe_move
@@ -8,9 +9,10 @@ from utils import logger, safe_move
 from plyer import notification
 
 class FileOrganizer:
-    def __init__(self, source_dir: str, config_path: str = "config.yaml", dry_run: bool = False, strategy: str = None):
+    def __init__(self, source_dir: str, config_path: str = "config.yaml", dry_run: bool = False, strategy: str = None, recursive: bool = False):
         self.source_dir = Path(source_dir)
         self.dry_run = dry_run
+        self.recursive = recursive
         self.history_file = self.source_dir / ".dex_history.json"
         
         if not self.source_dir.exists():
@@ -22,6 +24,7 @@ class FileOrganizer:
         self.strategy = strategy or self.config.get("default_strategy", "extension")
         self.ignore_list = set(self.config.get("ignore", []))
         self.mappings = self.config.get("mappings", {})
+        self.rules = self.config.get("rules", [])
 
     def _load_config(self, config_path):
         """Loads the YAML configuration file."""
@@ -49,18 +52,40 @@ class FileOrganizer:
         # Helper to ignore project files dynamically if config is missing them
         self.project_files = {'main.py', 'organizer.py', 'utils.py', 'config.yaml', 'requirements.txt', 'README.md', '.git', '.dex_history.json'}
 
-        for file_path in self.source_dir.iterdir():
+        # Deep Dive: Recursive Scan 🤿
+        if self.recursive:
+            file_iterator = self.source_dir.rglob('*')
+        else:
+            file_iterator = self.source_dir.iterdir()
+
+        for file_path in file_iterator:
             if file_path.is_file():
                 if file_path.name in self.ignore_list or file_path.name in self.project_files:
                     continue
                 
+                # Check if file is inside a hidden folder (like .git) or our history file
+                if any(part.startswith('.') for part in file_path.parts):
+                    continue
+
                 # Skip partial downloads
                 if file_path.suffix in {'.crdownload', '.part', '.tmp'}:
                     continue
-
+                
+                # Safety: If recursive, ensure we are not moving files ALREADY in a target folder
+                # Simple check: If parent folder is one of our mapping keys/rules, skip?
+                # Actually, safe_move handles duplicates, but we don't want to re-process 'Images/cat.jpg' and move it to 'Images/cat.jpg'.
+                # Let's rely on _get_target_folder logic: if target folder is SAME as current parent, we shouldn't move.
+                
                 target_folder_name = self._get_target_folder(file_path)
                 
                 if target_folder_name:
+                    target_origin = self.source_dir / target_folder_name
+                    # Optimization: If file is already in the target folder (or subfolder of target), SKIP.
+                    # e.g. source_dir/Images/cat.jpg -> target is Images. source_dir/Images is parent.
+                    # file_path.parent (C:/.../Images). target_origin (C:/.../Images).
+                    if target_origin == file_path.parent:
+                         continue
+
                     target_path = self.source_dir / target_folder_name
                     final_path = safe_move(file_path, target_path, self.dry_run)
                     
@@ -191,10 +216,34 @@ class FileOrganizer:
                     logger.debug(f"Could not remove {name}: {e}")
     def _get_target_folder(self, file_path: Path) -> str:
         """Determines the target folder based on the selected strategy."""
+        
+        # Priority 1: Smart Rules (Mind Reader) 🧠
+        rule_folder = self._check_rules(file_path.name)
+        if rule_folder:
+            return rule_folder
+
+        # Priority 2: Strategy
         if self.strategy == "date":
             return self._get_date_folder(file_path)
         else: # default to extension
             return self._get_extension_folder(file_path)
+
+    def _check_rules(self, file_name: str) -> str:
+        """Checks if filename matches any smart rules."""
+        if not self.rules:
+            return None
+            
+        for rule in self.rules:
+            target = rule.get("name")
+            keyword = rule.get("keyword")
+            pattern = rule.get("pattern")
+            
+            if keyword and keyword.lower() in file_name.lower():
+                return target
+            
+            if pattern and re.search(pattern, file_name):
+                return target
+        return None
 
     def _get_extension_folder(self, file_path: Path) -> str:
         """Returns the folder name based on file extension."""

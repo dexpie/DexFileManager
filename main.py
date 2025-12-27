@@ -38,6 +38,7 @@ def main():
     parser.add_argument("--strategy", type=str, choices=["extension", "date"], help="Organization strategy (overrides config)")
     parser.add_argument("--dry-run", action="store_true", help="Simulate changes without moving files")
     parser.add_argument("--undo", action="store_true", help="Undo the last batch of operations")
+    parser.add_argument("--recursive", action="store_true", help="Deep Dive: Recursively organize subfolders")
     parser.add_argument("--watch", action="store_true", help="Run continuously and watch for changes (every 10 seconds)")
     
     args = parser.parse_args()
@@ -50,7 +51,7 @@ def main():
     stats = {"scans": 0, "files_moved": 0}
 
     try:
-        organizer = FileOrganizer(source_path, dry_run=args.dry_run, strategy=args.strategy)
+        organizer = FileOrganizer(source_path, dry_run=args.dry_run, strategy=args.strategy, recursive=args.recursive)
         
         if args.undo:
             console.print("[bold yellow]⏳ Time Traveller Logic Activated...[/bold yellow]")
