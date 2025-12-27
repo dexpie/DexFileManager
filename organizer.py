@@ -4,6 +4,8 @@ from pathlib import Path
 from datetime import datetime
 from utils import logger, safe_move
 
+from plyer import notification
+
 class FileOrganizer:
     def __init__(self, source_dir: str, config_path: str = "config.yaml", dry_run: bool = False, strategy: str = None):
         self.source_dir = Path(source_dir)
@@ -33,14 +35,16 @@ class FileOrganizer:
 
     def organize(self):
         """Main method to organize files in the source directory."""
+        # Stats tracking
+        moved_count = 0
+        
         logger.info(f"Starting organization in '{self.source_dir}' (Strategy: {self.strategy}, Dry-Run: {self.dry_run})")
         
         if not any(self.source_dir.iterdir()):
-             logger.info("Directory is empty.")
-             return
+             return 0
 
         # Helper to ignore project files dynamically if config is missing them
-        self.project_files = {'main.py', 'organizer.py', 'utils.py', 'config.yaml', 'requirements.txt', 'README.md'}
+        self.project_files = {'main.py', 'organizer.py', 'utils.py', 'config.yaml', 'requirements.txt', 'README.md', '.git'}
 
         for file_path in self.source_dir.iterdir():
             if file_path.is_file():
@@ -56,8 +60,23 @@ class FileOrganizer:
                 if target_folder_name:
                     target_path = self.source_dir / target_folder_name
                     safe_move(file_path, target_path, self.dry_run)
+                    moved_count += 1
                 else:
                     logger.debug(f"Skipping '{file_path.name}' (No mapping found)")
+        
+        # THE BUTLER: Notification 🔔
+        if moved_count > 0 and not self.dry_run:
+            try:
+                notification.notify(
+                    title='DexFileManager',
+                    message=f'Sir, I have organized {moved_count} files for you.',
+                    app_name='DexFileManager',
+                    timeout=5
+                )
+            except Exception as e:
+                logger.error(f"Notification failed: {e}")
+        
+        return moved_count
 
     def _get_target_folder(self, file_path: Path) -> str:
         """Determines the target folder based on the selected strategy."""

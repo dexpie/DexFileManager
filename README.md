@@ -10,9 +10,11 @@ Stop wasting time organizing your downloads manually. DexFileManager categorizes
 
 ## 🚀 Features
 - **Auto-Organize**: Sorts by Extension (default) or Date.
-- **Dry-Run**: Preview what will happen before moving files.
+- **God Mode Dashboard**: 🖥️ Live terminal UI with real-time stats (via `rich`).
+- **Duplicate Assassin**: 🔪 Smartly compares file hashes. Identical? **Deleted**. Different? Renamed.
+- **The Butler**: 🔔 Sends desktop notifications when files are organized.
+- **Dry-Run**: Preview what will happen safely.
 - **Watch Mode**: Run in the background and organize incoming files automatically.
-- **Safe**: Handles duplicate filenames automatically (e.g., `file.txt` -> `file_1.txt`).
 - **Customizable**: simple `config.yaml` to change mappings.
 
 ## 🛠️ Installation

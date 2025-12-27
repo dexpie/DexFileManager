@@ -17,11 +17,26 @@ def setup_logger(name="DexFileManager"):
 
 logger = setup_logger()
 
+import hashlib
+
+def get_file_hash(file_path: Path) -> str:
+    """Returns the SHA256 hash of a file."""
+    sha256 = hashlib.sha256()
+    try:
+        with open(file_path, 'rb') as f:
+            while chunk := f.read(8192):
+                sha256.update(chunk)
+        return sha256.hexdigest()
+    except Exception as e:
+        logger.error(f"Error hashing file {file_path}: {e}")
+        return None
+
 def safe_move(source_path: Path, dest_folder: Path, dry_run: bool = False):
     """
     Moves a file to the destination folder.
-    If a file with the same name exists, it appends a counter to the filename.
-    e.g., file.txt -> file_1.txt
+    Smart Deduplication:
+    - If file exists AND content is identical (hash match) -> Delete source (Duplicate Assassin).
+    - If file exists AND content is different -> Rename to file_1.ext.
     """
     if not dest_folder.exists():
         if not dry_run:
@@ -31,15 +46,31 @@ def safe_move(source_path: Path, dest_folder: Path, dry_run: bool = False):
 
     dest_path = dest_folder / source_path.name
 
-    # Handle duplicates
-    counter = 1
-    stem = source_path.stem
-    suffix = source_path.suffix
-    
-    while dest_path.exists():
-        # Ideally, check if content is identical (future enhancement), but for now just rename
-        dest_path = dest_folder / f"{stem}_{counter}{suffix}"
-        counter += 1
+    # Check for collision
+    if dest_path.exists():
+        source_hash = get_file_hash(source_path)
+        dest_hash = get_file_hash(dest_path)
+        
+        # DUPLICATE ASSASSIN LOGIC 🔪
+        if source_hash and dest_hash and source_hash == dest_hash:
+            if dry_run:
+                logger.info(f"[DRY-RUN] 🔪 Duplicate Assassin: '{source_path.name}' is identical to target. Would DELETE.")
+            else:
+                try:
+                    os.remove(source_path)
+                    logger.info(f"🔪 Duplicate Assassin: Deleted '{source_path.name}' (Exact copy found).")
+                except Exception as e:
+                    logger.error(f"Failed to delete duplicate '{source_path.name}': {e}")
+            return # Stop here, don't move anything
+
+        # Content different, so rename
+        counter = 1
+        stem = source_path.stem
+        suffix = source_path.suffix
+        
+        while dest_path.exists():
+            dest_path = dest_folder / f"{stem}_{counter}{suffix}"
+            counter += 1
 
     if dry_run:
         logger.info(f"[DRY-RUN] Move: '{source_path.name}' -> '{dest_path}'")
